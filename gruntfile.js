@@ -1,5 +1,10 @@
 module.exports = function (grunt) {
+    // Load NPM modules
+    require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
+    // Load custom tasks
+    grunt.loadTasks('tasks');
 
+    // config var
     var config = {
         /* Meta Data
         ---------------------------------------------- */
@@ -32,6 +37,12 @@ module.exports = function (grunt) {
                     '<%= paths.folder.build %>**/*'
                 ],
                 tasks:['release']
+            },
+            scss:{
+                files:[
+                    '<%= paths.folder.build %>**/*.scss'
+                ],
+                tasks:['compass']
             }
         },
         copy:{
@@ -60,7 +71,14 @@ module.exports = function (grunt) {
         /* Server Tasks
         ---------------------------------------------- */
         connect:{
-            preview:{
+            build:{
+                options:{
+                    base:'<%= paths.folder.build %>',
+                    port:'8080',
+                    keepalive:true
+                }
+            },
+            release:{
                 options:{
                     base:'<%= paths.folder.release %>',
                     port:'8081',
@@ -85,19 +103,35 @@ module.exports = function (grunt) {
             build:{
                 options:{
                     sassDir:'<%= paths.folder.build %>sass',
-                    cssDir:'<%= paths.folder.build %>css'
+                    cssDir:'<%= paths.folder.build %>css',
+                    imagesDir: '<%= paths.folder.build %>img',
+                    httpImagesPath: '/img/join',
+                    httpGeneratedImagesPath: '../img',
+                    relativeAssets: true
                 }
+            }
+        },
+        sass: {
+            build: {
+                options: {
+                    style: 'expanded'
+                },
+                files: {
+                    '<%= paths.folder.build %>css/modules.css': '<%= paths.folder.build %>sass/modules.scss'
+                }
+            }
+        },
+        /* Utility
+        --------------------------------------------------- */
+        concurrent: {
+            grind: {
+                tasks:[
+                    'connect:build:keepalive',
+                    'watch'
+                ]
             }
         }
     };
-
-    // Load NPM tasks
-    grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-connect');
-    grunt.loadNpmTasks('grunt-contrib-compass');
-    grunt.loadNpmTasks('grunt-contrib-requirejs');
 
     // Custom tasks
     grunt.registerTask('release', [
@@ -106,7 +140,9 @@ module.exports = function (grunt) {
         'clean:tidyRelease'
     ]);
 
-
+    grunt.registerTask('grind', [
+        'concurrent:grind'
+    ]);
 
     // Kick-off Grunt
     grunt.initConfig(config);

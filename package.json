@@ -1,6 +1,6 @@
 {
-  "name": "require-playground",
-  "description": "Require.JS playground",
+  "name": "basic-grunt-boilerplate",
+  "description": "Basic Grunt Boilerplate",
   "version": "0.2.0",
   "homepage": "https://bitbucket.org/DoubleDome",
   "author": "Alex Toledo",
